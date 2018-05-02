@@ -1,0 +1,859 @@
+\documentclass[a4paper]{article}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{bussproofs}
+\usepackage{mathtools}
+\usepackage{verbatim}
+\usepackage{dsfont}
+\usepackage{mathabx}
+\usepackage[all, 2cell]{xy}
+\usepackage[all]{xy}
+\usepackage{wasysym}
+\usepackage{rotating}
+\usepackage{geometry}
+\geometry{left=3cm}
+\geometry{right=1.5cm}
+\geometry{top=2.4cm}
+\geometry{bottom=2.4cm}
+\newtheorem{theorem}{Theorem}
+\newtheorem{prop}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{defin}{Definition}
+\newtheorem{ex}{Example}
+\newtheorem{col}{Corollary}
+\newtheorem{con}{Consequence}
+\usepackage{listings} 		% for source code
+\date{}
+\title{Lambek $\lambda$-calculus}
+\begin{document}
+
+\begin{defin} Types
+
+  Let $Tp = \{ p_1, p_2, p_3, \dots \}$ be the set of primitive types. The set $\mathbb{T}$ of typed is defined by following grammar:
+
+\begin{equation}
+  \mathbb{T} ::= Tp \: | \: \mathbb{T} \bullet \mathbb{T} \: | \: \mathbb{T} \backslash \mathbb{T} \: | \: \mathbb{T} / \mathbb{T} \: | \: ! \mathbb{T}
+\end{equation}
+\end{defin}
+
+\begin{defin} Terms
+
+  Let $\mathbb{V} = \{ x, y, z, \dots \}$ be the set of variables. The set $\mathcal{T}$ of terms is defined by following grammar:
+
+\begin{equation}
+  \mathcal{T} ::= \mathbb{V} \: | \: \lambda \mathbb{V}. \mathcal{T} \: | \: \kappa \mathbb{V}. \mathcal{T} \: | \: \mathcal{T} \mathcal{T} \: | \: \mathcal{T} \& \mathcal{T} \: | \: \mathcal{T} \otimes \mathcal{T} \: | \:
+  {\bf let \:} \mathbb{V} = \mathbb{V} \otimes \mathbb{V} {\: \bf in \:} \mathcal{T} \: | \: ! \mathcal{T}
+\end{equation}
+\end{defin}
+
+\begin{defin} ND-style Lambek $\lambda$-calculus based on $L^{*}(\bullet, /, \backslash)$:
+  \begin{center}
+  \begin{prooftree}
+  \AxiomC{$ $}
+  \RightLabel{\scriptsize{ax}}
+  \UnaryInfC{$x : A \vdash x : A$}
+  \end{prooftree}
+  \end{center}
+
+  \begin{minipage}{0.45\textwidth}
+    \begin{prooftree}
+    \AxiomC{$x : A, \Pi \vdash M : B$}
+    \RightLabel{$\rightarrow \backslash$}
+    \UnaryInfC{$\Pi \vdash \lambda x. M : A \backslash B$}
+    \end{prooftree}
+
+    \begin{prooftree}
+    \AxiomC{ $\Pi, x : A \vdash M : B$ }
+    \RightLabel{$\rightarrow /$}
+    \UnaryInfC{$\Pi \vdash \kappa x. M : B / A$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \vdash M : A$}
+      \AxiomC{$\Delta \vdash N : B$}
+      \RightLabel{$\rightarrow \bullet$}
+      \BinaryInfC{$\Gamma, \Delta \vdash M \bullet N : A \bullet B $}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AxiomC{$!\Gamma \vdash M : A$}
+      \UnaryInfC{$!\Gamma \vdash ! M : \: !A$}
+    \end{prooftree}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.5\textwidth}
+\begin{tabular}{p{\textwidth}}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : A$}
+    \AxiomC{$\Pi \vdash N : A \backslash B$}
+    \BinaryInfC{$\Gamma, \Pi \vdash N \$ M : B$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : B / A$}
+    \AxiomC{$\Pi \vdash N : A$}
+    \BinaryInfC{$\Gamma, \Pi \vdash N \& M : B$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash p : A \bullet B$}
+    \AxiomC{$\Delta, x : A, y : B, \Pi \vdash N : C$}
+    \BinaryInfC{$\Delta, \Gamma, \Pi \vdash {\bf let \:} p = x \bullet y {\: \bf in \:} N : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \: !A$}
+    \AxiomC{$\Pi, x : A, \Delta \vdash N : B$}
+    \BinaryInfC{$\Pi, \Gamma, \Delta \vdash {\bf let \:} !x = M {\: \bf in \:} N : A$}
+  \end{prooftree}
+\end{tabular}
+\end{minipage}%
+
+\begin{center}
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : \: !A$}
+    \AxiomC{$\Delta \vdash N : B$}
+    \AxiomC{$\Pi, x : \: !A, y : B, \Theta \vdash P : C$}
+    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash ([x]M \: \smiley{} \: [y]N) {\: \bf in \:} P : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma \vdash M : A$}
+    \AxiomC{$\Delta \vdash N : \: !B$}
+    \AxiomC{$\Pi, x : A, y : \:!B, \Theta \vdash M : C$}
+    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash ([y]N \: \blacksmiley{} \: [x]M) {\: \bf in \:} M : C$}
+  \end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash M : \: !A$}
+  \AxiomC{$\Delta, x : \: !A, y : \: !A \vdash N : C$}
+  \BinaryInfC{$\Delta, \Gamma \vdash {\bf let \:} x @ y = M {\: \bf in \:} N : C$}
+\end{prooftree}
+
+  \begin{prooftree}
+  \AxiomC{$\Pi \vdash M : B$}
+  \AxiomC{$\Gamma, x : B, \Delta \vdash N : A$}
+  \RightLabel{{\bf subst}}
+  \BinaryInfC{$\Gamma, \Pi, \Delta \vdash N [x := M] : A$}
+\end{prooftree}
+\end{center}
+\end{defin}
+
+Examples:
+
+\begin{prooftree}
+  \AxiomC{$f : \: !(s / n) \vdash f : \: !(s / n)$}
+  \AxiomC{$x : \: !n \vdash x : \: !n$}
+  \AxiomC{$g : s / n \vdash g : s / n$}
+  \AxiomC{$y : s \vdash y : s$}
+  \BinaryInfC{$g : s / n, y : s \vdash y \& g : s$}
+  \BinaryInfC{$g : s / n, x : \: !n \vdash {\bf let \:} !y = x {\: \bf in \:} y \& g : s$}
+  \BinaryInfC{$f : \: !(s / n), x : \: !n \vdash {\bf let \:} !g = f {\: \bf in \:} ({\bf let \:} !y = x {\: \bf in \:} y \& g) : s$}
+  \UnaryInfC{$f : \: !(s / n), x : \: !n \vdash !({\bf let \:} !g = f {\: \bf in \:} ({\bf let \:} !y = x {\: \bf in \:} y \& g)) : \: !s$}
+  \UnaryInfC{$x : \: !n \vdash \lambda f. !({\bf let \:} !g = f {\: \bf in \:} ({\bf let \:} !y = x {\: \bf in \:} y \& g)) : \: !(s / n) \backslash !s$}
+  \UnaryInfC{$\vdash \kappa x. \lambda f. !({\bf let \:} !g = f {\: \bf in \:} ({\bf let \:} !y = x {\: \bf in \:} y \& g)) : \: (!(s / n) \backslash !s) / !n $}
+\end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$x : \:!n \vdash x : \: !n$}
+  \AxiomC{$y : n \vdash y : n$}
+  \BinaryInfC{$x : \: !n \vdash {\bf let \:} !y = x {\: \bf in \:} y : n$}
+  \UnaryInfC{$\vdash \lambda x. {\bf let \:} !y = x {\: \bf in \:} : \: !n \backslash n$}
+\end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$x : \:!n \vdash x : \: !n$}
+  \UnaryInfC{$x : \:!n \vdash !x : \: !!n$}
+  \UnaryInfC{$\vdash \kappa x. !x : \: !!n / !n$}
+\end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$p : \: !A \bullet !B \vdash p : \: !A \bullet !B$}
+  \AxiomC{$x : \: !A \vdash x : \: !A$}
+  \AxiomC{$y : \: !B \vdash x : \: !B$}
+  \AxiomC{$x_1 : A \vdash x_1 : A$}
+  \AxiomC{$y_1 : B \vdash y_1 : B$}
+  \BinaryInfC{$x_1 : A, y_1 : B \vdash x_1 \bullet y_1 : A \bullet B$}
+  \BinaryInfC{$x_1 : \: A, y : \: !B \vdash {\bf let \:} !y_1 = y {\: \bf in \:} x_1 \bullet y_1 : A \bullet B$}
+  \BinaryInfC{$x : \: !A, y : \: !B \vdash {\bf let \:} !x_1 = x {\: \bf in \:} ({\bf let \:} !y_1 = y {\: \bf in \:} x_1 \bullet y_1) : A \bullet B$}
+  \UnaryInfC{$x : \: !A, y : \: !B \vdash !({\bf let \:} !x_1 = x {\: \bf in \:} ({\bf let \:} !y_1 = y {\: \bf in \:} x_1 \bullet y_1)) : \: !(A \bullet B)$}
+  \BinaryInfC{$p : \: !A \bullet !B \vdash {\: \bf let \:} x \bullet y = p {\: \bf in \:} !({\bf let \:} !x_1 = x {\: \bf in \:} ({\bf let \:} !y_1 = y {\: \bf in \:} x_1 \bullet y_1)) : \: !(A \bullet B)$}
+  \UnaryInfC{$\vdash \kappa p. {\: \bf let \:} x \bullet y = p {\: \bf in \:} !({\bf let \:} !x_1 = x {\: \bf in \:} ({\bf let \:} !y_1 = y {\: \bf in \:} x_1 \bullet y_1)) : \: !(A \bullet B) / (!A \bullet !B)$}
+\end{prooftree}
+
+\begin{defin} Sequent-style Lambek $\lambda$-calculus based on $L^{*}(\bullet, /, \backslash, !)$:
+
+  \begin{center}
+  \begin{prooftree}
+  \AxiomC{$ $}
+  \RightLabel{\scriptsize{ax}}
+  \UnaryInfC{$x : A \Rightarrow x : A$}
+  \end{prooftree}
+  \end{center}
+
+  \begin{minipage}{0.45\textwidth}
+    \begin{prooftree}
+    \AxiomC{$x : A, \Pi \Rightarrow M : B$}
+    \RightLabel{$\rightarrow \backslash$}
+    \UnaryInfC{$\Pi \Rightarrow \kappa x. M : A \backslash B$}
+    \end{prooftree}
+
+    \begin{prooftree}
+    \AxiomC{ $\Pi, x : A \Rightarrow M : A$ }
+    \RightLabel{$\rightarrow /$}
+    \UnaryInfC{$\Pi \Rightarrow \lambda x. M : B / A$}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AxiomC{$\Gamma \Rightarrow M : A$}
+      \AxiomC{$\Delta \Rightarrow N : B$}
+      \RightLabel{$\rightarrow \bullet$}
+      \BinaryInfC{$\Gamma, \Delta \Rightarrow M \bullet N : A \bullet B $}
+    \end{prooftree}
+
+    \begin{prooftree}
+      \AxiomC{$! \Gamma \vdash M : A$}
+      \RightLabel{$\rightarrow !$}
+      \UnaryInfC{$! \Gamma \vdash !M : \: !A$}
+    \end{prooftree}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.45\textwidth}
+\begin{tabular}{p{\textwidth}}
+  \begin{prooftree}
+  \AxiomC{$\Pi \Rightarrow M : A$}
+  \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
+  \RightLabel{$\backslash \rightarrow$}
+  \BinaryInfC{$\Gamma, \Pi, f : A \backslash B, \Delta \Rightarrow N [x := f \& M] : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Pi \Rightarrow M : A$}
+    \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
+    \RightLabel{$/ \rightarrow$}
+    \BinaryInfC{$\Gamma, f : B / A, \Pi, \Delta \Rightarrow N [x := M \$ f] : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : A, y : B, \Delta \Rightarrow M : C$}
+    \RightLabel{$\bullet \rightarrow$}
+    \UnaryInfC{$\Gamma, p : A \bullet B, \Delta \Rightarrow {\bf let \:} p = x \bullet y {\: \bf in \:} M : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : A, \Delta \Rightarrow M : B$}
+    \RightLabel{$! \rightarrow$}
+    \UnaryInfC{$\Gamma, z : \: !A, \Delta \Rightarrow {\bf let \:} !x = z {\: \bf in \:} M : B$}
+  \end{prooftree}
+\end{tabular}
+\end{minipage}%
+
+\begin{center}
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \Rightarrow M : B$}
+    \RightLabel{${\bf perm}_1$}
+    \UnaryInfC{$\Gamma, x_1 : A_1, \dots, x_n : A_n, x : \: !A, \Delta \Rightarrow [x]x \smiley [x_n]x_n {\: \bf in \:} \dots {\: \bf in \:} [x]x \smiley [x_1]x_1 {\: \bf in \:} M : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x_1 : A_1, \dots, x_n : A_n, x : \: !A, \Delta \Rightarrow M : B$}
+    \RightLabel{${\bf perm}_2$}
+    \UnaryInfC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \Rightarrow [x_n]x_n \blacksmiley [x]x {\: \bf in \:} \dots {\: \bf in \:} [x_1]x_1 \blacksmiley [x]x {\: \bf in \:} M : C$}
+  \end{prooftree}
+
+  \begin{prooftree}
+    \AxiomC{$\Gamma, x : \: !A, y : \: !A, \Delta \Rightarrow M : B$}
+    \RightLabel{${\bf contr}$}
+    \UnaryInfC{$\Gamma, z : \: !A, \Delta \Rightarrow {\bf let \:} (x @ y) = z {\: \bf in \:} M : B$}
+  \end{prooftree}
+
+  \begin{prooftree}
+  \AxiomC{$\Pi \vdash M : B$}
+  \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : A$}
+  \RightLabel{{\bf subst}}
+  \BinaryInfC{$\Gamma, \Pi, \Delta \Rightarrow N [x := M] : A$}
+\end{prooftree}
+\end{center}
+
+\end{defin}
+
+\begin{lemma} Generation lemma
+\end{lemma}
+
+\begin{defin} Reduction
+
+  \begin{enumerate}
+    \item $(\lambda x. M) N \rightarrow_{\beta} M [x := N]$;
+    \item $N \& (\kappa x. M) \rightarrow_{\beta} M [x := N]$;
+    \item ${\bf let \:} u \bullet v = x \bullet y {\: \bf in \:} M \rightarrow_{\beta} M [x := u] [y := v]$
+    \item $\lambda x. M x \rightarrow_{\eta} M$;
+    \item $\kappa x. x \& M \rightarrow_{\eta} M$;
+    \item ${\bf let \:} !x = !M {\: \bf in \:} N \rightarrow_{\eta} N [x := M]$;
+    \item $[x]M \smiley [y]N {\: \bf in \:} ([y]N \blacksmiley [x]M {\: \bf in \:} P) \rightarrow_{\eta} P$;
+    \item $[y]N \blacksmiley [x]M {\: \bf in \:} ([x]M \smiley [y]N {\: \bf in \:} P) \rightarrow_{\eta} P$.
+  \end{enumerate}
+\end{defin}
+
+\begin{lemma} Equivalence between ND and S
+
+  $\Gamma \vdash M : A \Leftrightarrow \Gamma \Rightarrow M : A$
+\end{lemma}
+
+\begin{proof}
+  $ $
+
+Only if part:
+
+1) Let the derivation ends with
+
+\begin{prooftree}
+\AxiomC{$\Gamma \vdash M : A$}
+\AxiomC{$\Pi \vdash N : A \backslash B$}
+\BinaryInfC{$\Gamma, \Pi \vdash N M : B$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow M : A$ and $\Pi \Rightarrow N : A \backslash B$.
+
+\begin{prooftree}
+  \AxiomC{$\Pi \Rightarrow N : A \backslash B$}
+  \AxiomC{$\Gamma \Rightarrow M : A$}
+  \AxiomC{$y : B \Rightarrow y : B$}
+  \BinaryInfC{$\Gamma,  f : A \backslash B \Rightarrow f M$}
+  \BinaryInfC{$\Gamma, \Pi \Rightarrow N M : B$}
+\end{prooftree}
+
+2) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash M : B / A$}
+  \AxiomC{$\Pi \vdash N : A$}
+  \BinaryInfC{$\Pi, \Gamma \vdash N \& M : B$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow M : B / A$ and $\Pi \Rightarrow N : A$.
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \Rightarrow M : B / A$}
+  \AxiomC{$\Pi \Rightarrow N : A$}
+  \AxiomC{$y : B \Rightarrow y : B$}
+  \BinaryInfC{$\Pi, f : B / A \Rightarrow N \& f : B$}
+  \BinaryInfC{$\Pi, \Gamma \vdash N \& M : B$}
+\end{prooftree}
+
+3) Let the derivation ends with:
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash p : A \bullet B$}
+  \AxiomC{$\Delta, x : A, y : B, \Pi \vdash N : C$}
+  \BinaryInfC{$\Delta, \Gamma, \Pi \vdash {\bf let \:} p = x \bullet y {\: \bf in \:} N : C$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow p : A \bullet B$ and $\Delta, x : A, y : B, \Pi \Rightarrow N : C$.
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash p : A \bullet B$}
+  \AxiomC{$\Delta, x : A, y : B, \Pi \Rightarrow N : C$}
+  \RightLabel{$\bullet \rightarrow$}
+  \UnaryInfC{$\Delta, q : A \bullet B, \Pi \Rightarrow {\bf let \:} x \bullet y = q {\: \bf in \:} N : C$}
+  \RightLabel{{\bf subst}}
+  \BinaryInfC{$\Delta, \Gamma, \Pi \Rightarrow x \bullet y = p {\: \bf in \:} N : C$}
+\end{prooftree}
+
+4) Let the derivation ends with:
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash M : \: !A$}
+  \AxiomC{$\Pi, x : A, \Delta \vdash N : B$}
+  \BinaryInfC{$\Pi, \Gamma, \Delta \vdash {\bf let \:} !x = M {\: \bf in \:} N : A$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow M : \: !A$ and $\Pi, x : A, \Delta \Rightarrow N : B$.
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \Rightarrow M : \: !A$}
+  \AxiomC{$\Pi, x : A, \Delta \Rightarrow N : B$}
+  \RightLabel{$! \rightarrow$}
+  \UnaryInfC{$\Pi, z : \: !A, \Delta \Rightarrow {\bf let \:} !x = z {\: \bf in \:} N : C$}
+  \RightLabel{${\bf subst}$}
+  \BinaryInfC{$\Pi, \Gamma, \Delta \Rightarrow {\bf let \:} !x = M {\: \bf in \:} N : C$}
+\end{prooftree}
+
+5) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash M : \: !A$}
+  \AxiomC{$\Delta, x : \: !A, y : \: !A, \Pi \vdash N : C$}
+  \BinaryInfC{$\Delta, \Gamma, \Pi \vdash {\bf let \:} x @ y = M {\: \bf in \:} N : C$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow M : \: !A$ and $\Delta, x : \: !A, y : \: !A \Rightarrow N : C$.
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \Rightarrow M : \: !A$}
+  \AxiomC{$\Delta, x : \: !A, y : \: !A, \Pi \Rightarrow N : C$}
+  \RightLabel{\bf contr}
+  \UnaryInfC{$\Delta, z : \: !A, \Pi \Rightarrow {let \:} x @ y = z {\: \bf in \:} N : C$}
+  \RightLabel{\bf subst}
+  \BinaryInfC{$\Delta, \Gamma, \Pi \Rightarrow {let \:} x @ y = M {\: \bf in \:} N : C$}
+\end{prooftree}
+
+6) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash M : \: !A$}
+  \AxiomC{$\Delta \vdash N : B$}
+  \AxiomC{$\Pi, x : \: !A, y : B, \Theta \vdash P : C$}
+  \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash ([x]M \: \smiley{} \: [y]N) {\: \bf in \:} P : C$}
+\end{prooftree}
+
+By IH $\Gamma \Rightarrow M : \: !A$, $\Delta \Rightarrow N : B$ and $\Pi, x : \: !A, y : B, \Theta \Rightarrow P : C$.
+
+\begin{prooftree}
+  \AxiomC{$\Delta \Rightarrow N : B$}
+  \AxiomC{$\Gamma \Rightarrow M : \: !A$}
+  \AxiomC{$\Pi, x : \: !A, y : B, \Theta \Rightarrow P : C$}
+  \RightLabel{${\bf perm}_1$}
+  \UnaryInfC{$\Pi, y : B, x : \: !A, \Theta \Rightarrow [x]x \smiley [y]y {\: \bf in \:} P : C$}
+  \RightLabel{\bf subst}
+  \BinaryInfC{$\Pi, y : B, \Gamma, \Theta \Rightarrow [x]M \smiley [y]y {\: \bf in \:} P : C$}
+  \RightLabel{\bf subst}
+  \BinaryInfC{$\Pi, \Delta, \Gamma, \Theta \Rightarrow [x]M \smiley [y]N {\: \bf in \:} P : C$}
+\end{prooftree}
+
+\vspace{\baselineskip}
+
+If part
+
+\vspace{\baselineskip}
+
+1) Let the derivation end with
+
+\begin{prooftree}
+\AxiomC{$\Pi \Rightarrow M : A$}
+\AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
+\RightLabel{$\backslash \rightarrow$}
+\BinaryInfC{$\Gamma, \Pi, f : A \backslash B, \Delta \Rightarrow N [x := fM] : C$}
+\end{prooftree}
+
+By IH $\Pi \vdash M : A$ and $\Gamma, x : B, \Delta \vdash N : C$.
+
+\begin{prooftree}
+  \AxiomC{$\Pi \vdash M : A$}
+  \AxiomC{$f : A \backslash B \vdash f : A \backslash B$}
+  \BinaryInfC{$\Pi, f : A \backslash B \vdash f M : B$}
+  \AxiomC{$\Gamma, x : B, \Delta \vdash N : C$}
+  \BinaryInfC{$\Gamma, \Pi, f : A \backslash B, \Delta \vdash N [x := fM] : C$}
+\end{prooftree}
+
+2) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Pi \Rightarrow M : A$}
+  \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
+  \RightLabel{$/ \rightarrow$}
+  \BinaryInfC{$\Gamma, f : B / A, \Pi, \Delta \Rightarrow N [x := M \& f] : C$}
+\end{prooftree}
+
+By IH $\Pi \vdash M : A$ and $\Gamma, x : B, \Delta \vdash N : C$
+
+\begin{prooftree}
+  \AxiomC{$f : B / A \vdash f : B / A$}
+  \AxiomC{$\Pi \vdash M : A$}
+  \BinaryInfC{$f : B / A, \Pi \vdash M \& f : B$}
+  \AxiomC{$\Gamma, x : B, \Delta \vdash N : C$}
+  \BinaryInfC{$\Gamma, f : B / A, \Pi, \Delta \vdash N [x := M \& f] : C$}
+\end{prooftree}
+
+3) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma, x : A, y : B, \Delta \Rightarrow M : C$}
+  \RightLabel{$\bullet \rightarrow$}
+  \UnaryInfC{$\Gamma, p : A \bullet B, \Delta \Rightarrow {\bf let \:} p = x \bullet y {\: \bf in \:} M : C$}
+\end{prooftree}
+
+By IH $\Gamma, x : A, y : B, \Delta \vdash M : C$
+
+\begin{prooftree}
+  \AxiomC{$p : A \bullet B \vdash A \bullet B$}
+  \AxiomC{$\Gamma, x : A, y : B, \Delta \vdash M : C$}
+  \BinaryInfC{$\Gamma, p : A \bullet B, \Delta \vdash {\bf let \:} x \bullet y = p {\: \bf in \:} M : C$}
+\end{prooftree}
+
+4) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma, x : A, \Delta \Rightarrow M : B$}
+  \RightLabel{$! \rightarrow$}
+  \UnaryInfC{$\Gamma, z : \: !A, \Delta \Rightarrow {\bf let \:} !x = z {\: \bf in \:} M : B$}
+\end{prooftree}
+
+By IH $\Gamma, x : A, \Delta \vdash M : B$.
+
+\begin{prooftree}
+  \AxiomC{$z : \: !A \vdash z : \: !A$}
+  \AxiomC{$\Gamma, x : A, \Delta \vdash M : B$}
+  \BinaryInfC{$\Gamma, z : \: !A, \Delta \vdash {\bf let \:} !x = z {\: \bf in \:} M : B$}
+\end{prooftree}
+
+5) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma, x : \: !A, y : \: !A, \Delta \Rightarrow M : B$}
+  \RightLabel{${\bf contr}$}
+  \UnaryInfC{$\Gamma, z : \: !A, \Delta \Rightarrow {\bf let \:} (x @ y) = z {\: \bf in \:} M : B$}
+\end{prooftree}
+
+By IH $\Gamma, x : \: !A, y : \: !A, \Delta \vdash M : B$
+
+\begin{prooftree}
+  \AxiomC{$z : \: !A \vdash z : \: !A$}
+  \AxiomC{$\Gamma, x : \: !A, y : \: !A, \Delta \vdash M : B$}
+  \BinaryInfC{$\Gamma, z : \: !A, \Delta \vdash {\bf let \:} (x @ y) = z {\: \bf in \:} M : B$}
+\end{prooftree}
+
+6) Let the derivation ends with
+
+\begin{prooftree}
+  \AxiomC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \Rightarrow M : B$}
+  \RightLabel{${\bf perm}_1$}
+  \UnaryInfC{$\Gamma, x_1 : A_1, \dots, x_n : A_n, x : \: !A, \Delta \Rightarrow [x]x \smiley [x_n]x_n {\: \bf in \:} \dots {\: \bf in \:} [x]x \smiley [x_1]x_1 {\: \bf in \:} M : C$}
+\end{prooftree}
+
+By IH $\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \vdash M : B$
+
+\begin{prooftree}
+  \AxiomC{$x : \: !A \vdash x : \: !A$}
+  \AxiomC{$x_1 : A_1 \vdash x_1 : A_1$}
+  \AxiomC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \vdash M : B$}
+  \TrinaryInfC{$\Gamma, x_1 : A_1, x : \: !A, \dots, x_n : A_n, \Delta \vdash [x]x \smiley [x_1]x_1 {\: \bf in \:} M : B$}
+\end{prooftree}
+\begin{center}
+$\dots$
+\end{center}
+\begin{scriptsize}
+\begin{prooftree}
+  \AxiomC{$x : \:!A \vdash x : \: !A$}
+  \AxiomC{$x_n : A_n \vdash x_n : A_n$}
+  \AxiomC{$\Gamma, x_1 : A_1, \dots, x_{n-1} : A_{n-1}, x : \:!A, x_n : A_n, \Delta \vdash [x]x \smiley [x_{n-1}]x_{n-1} {\: \bf in \:} \dots {\: \bf in \:} [x]x \smiley [x_1]x_1 {\: \bf in \:} M : B$}
+  \TrinaryInfC{$\Gamma, x_1 : A_1, \dots, x_{n-1} : A_{n-1}, x_n : A_n, x : \: !A, \Delta \vdash [x]x \smiley [x_n]x_n {\: \bf in \:} \dots {\: \bf in \:} [x]x \smiley [x_1]x_1 {\: \bf in \:} M : B$}
+\end{prooftree}
+\end{scriptsize}
+\end{proof}
+
+\begin{theorem} Curry-Howard Isomorphism
+
+  $\Gamma \Rightarrow M : A \Leftrightarrow |\Gamma| \Rightarrow A$
+\end{theorem}
+
+\begin{proof}
+
+1) Basic case:
+
+$x : A \Rightarrow x : A \Leftrightarrow A \Rightarrow A$
+\end{proof}
+
+\begin{theorem} Subject reduction
+
+  $\Gamma \vdash M : A$ and $M \twoheadrightarrow_{\beta} N$, then $\Gamma \vdash N : A$.
+\end{theorem}
+
+\begin{proof}
+
+The general statement follows from transitivity of multi-step reduction.
+
+1)
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash N : A$}
+  \AxiomC{$\Pi \vdash \lambda x.M : A \backslash B$}
+  \BinaryInfC{$\Gamma, \Pi \vdash (\lambda x. M) N : B$}
+\end{prooftree}
+
+By generation, if $\Pi \vdash \lambda x.M : A \backslash B$, then $x : A, \Pi \vdash M : B$.
+
+So $\Gamma, \Pi \vdash M [x := N]$ by {\bf subst}-rule.
+
+\vspace{\baselineskip}
+
+2)
+
+\begin{prooftree}
+  \AxiomC{$\Gamma \vdash \kappa x. M : B / A$}
+  \AxiomC{$\Pi \vdash N : A$}
+  \BinaryInfC{$\Gamma, \Pi \vdash N \& (\kappa x. M)$}
+\end{prooftree}
+
+By generation, if $\Gamma \vdash \kappa x. M : B / A$, then $\Gamma, x : A \vdash M : B$.
+
+So, $\Gamma, \Pi \vdash M [x := N]$ by {\bf subst}-rule.
+
+\vspace{\baselineskip}
+
+3)
+
+\begin{prooftree}
+  \AxiomC{$u : A \vdash u : A$}
+  \AxiomC{$v : B \vdash v : B$}
+  \BinaryInfC{$u : A, v : B \vdash u \bullet v : A \bullet B$}
+  \AxiomC{$\Gamma, x : A, y : B \vdash M : C$}
+  \UnaryInfC{$\Gamma, z : A \bullet B \vdash {\bf let \:} x \bullet y = z {\: \bf in \: } M : C$}
+  \BinaryInfC{$\Gamma, u : A, v : B \vdash {\bf let \:} x \bullet y = u \bullet v {\: \bf in \:} M : C$}
+\end{prooftree}
+
+\begin{prooftree}
+  \AxiomC{$v : B \vdash v : B$}
+  \AxiomC{$u : A \vdash u : A$}
+  \AxiomC{$\Gamma, x : A, y : B \vdash M : C$}
+  \BinaryInfC{$\Gamma, u : A, y : B \vdash M [x := u] : C$}
+  \BinaryInfC{$\Gamma, u : A, v : B \vdash M [x := u] [y := v] : C$}
+\end{prooftree}
+
+\vspace{\baselineskip}
+
+Cases with $\eta$ follows from generation.
+
+\end{proof}
+
+\begin{theorem} Strong normalization
+  $ $
+
+  $\twoheadrightarrow$ is strongly normalizible.
+\end{theorem}
+
+\begin{proof}
+
+\begin{defin} The set of strongly computable terms
+  \begin{itemize}
+    \item $SC_{p_i} = \{ M : p_i \: | \: M \text{ is strongly normalizible } \}$;
+    \item $SC_{A \backslash B} = \{ M : A \backslash B \: | \: \forall N \in SC_{A}, M N \in SC_{B} \}$;
+    \item $SC_{B / A} = \{ M : B / A \: | \: \forall N \in SC_{A}, N \& M \in SC_{B} \}$;
+    \item $SC_{A \bullet B} = \{ M \bullet N \: | \: M \in SC_{A} \text{ and } N \in SC_{B}\}$;
+    \item $SC_{!A} = \{ M : \: !A \: | \: \forall N \in SC_{B}, {\bf let \:} !x = M {\: \bf in \:} N \in SC_B, \text{where $x \in FV(N) \wedge x \in SC_{A}$ }\}$
+  \end{itemize}
+\end{defin}
+
+\begin{lemma}
+
+  If $M \in SC_A$, then $M$ is strongly normalizible.
+\end{lemma}
+
+\begin{proof}
+  Induction on the structure of $A$.
+\end{proof}
+
+\begin{lemma}
+
+  If $M \to N$ and $M \in SC_A$, then $N \in SC_A$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+
+\begin{lemma} If $M \to N$ and $N \in SC_A$, then $M \in SC_A$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\begin{lemma} Let $x_1 : A_1, \dots, x_n : A_n \vdash M : A$ and $\forall i \in \{ 1, \dots, n\}, x^{'}_i \in SC_{A_i}$, then
+  $M [\vec{x} := \vec{x^{'}}] \in SC_A$.
+\end{lemma}
+
+\begin{proof}
+\end{proof}
+
+\end{proof}
+
+\begin{theorem} Church-Rosser property
+\end{theorem}
+
+\begin{proof} According to Newman's lemma, it is sufficient to establish local confluence.
+\end{proof}
+
+\section{Sematics}
+
+\begin{defin} Monoidal comonad
+  A monoidal comonad on some monoidal category $\mathcal{C}$ is a triple $\langle \mathcal{F}, \epsilon, \delta \rangle$,
+  where $\mathcal{F}$ is a monoidal endofunctor and $\epsilon : \mathcal{F} \Rightarrow Id_{\mathcal{C}}$ (counit) and $\epsilon : \mathcal{F} \Rightarrow \mathcal{F}^2$ (comultiplication),
+  such that the following diagrams commute:
+
+\begin{minipage}{0.45\textwidth}
+\begin{small}
+\xymatrix{
+\mathcal{F}A \otimes \mathcal{F}B \ar[dd]_{\delta_A \otimes \delta_B} \ar[r]^{\phi_{A,B}} & \mathcal{F}(A \otimes B) \ar[dr]^{\delta_{A \otimes B}} \\
+&& \mathcal{F}\mathcal{F}(A \otimes B) \\
+\mathcal{F}\mathcal{F}A \otimes \mathcal{F}\mathcal{F}B \ar[r]_{\phi_{\mathcal{F}A, \mathcal{F}B}} & \mathcal{F}(\mathcal{F}A \otimes \mathcal{F}B) \ar[ur]_{\mathcal{F}(\phi_{A,B})}
+}
+\end{small}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.5\textwidth}
+\begin{tabular}{p{\textwidth}}
+\xymatrix{
+\mathcal{F}A \otimes \mathcal{F}B \ar[rr]^{\phi_{A,B}} \ar[dr]_{\epsilon_A \otimes \epsilon_B} && \mathcal{F}(A \otimes B) \ar[dl]^{\epsilon_{A \otimes B}} \\
+& A \otimes B &
+}
+\end{tabular}
+\end{minipage}%
+
+\xymatrix{
+&&&&&&& \mathds{1} \ar[r]^{\phi} \ar[d]_{\phi} & \mathcal{F}\mathds{1} \ar[d]^{\delta_{\mathds{1}}} \\
+&&&&&&& \mathcal{F}\mathds{1} \ar[r]_{\mathcal{F}(\phi)} & \mathcal{F}\mathcal{F}\mathds{1}
+}
+
+\xymatrix{
+&&&&&&& \mathds{1} \ar[dr]_{\phi} \ar[rr]^{id_{\mathds{1}}} && \mathds{1}\\
+&&&&&&&& \mathcal{F}\mathds{1} \ar[ur]_{\epsilon_{\mathds{1}}} &
+}
+\end{defin}
+
+\begin{defin} Biclosed monoidal category
+
+  Let $\mathcal{C}$ be the monoidal category. Biclosed monoidal category is a monoidal category with the following additional data:
+  \begin{enumerate}
+    \item Bifunctors $\underline{\quad} \Leftarrow \underline{\quad}, \underline{\quad} \Rightarrow \underline{\quad} : \mathcal{C}^{op} \times \mathcal{C} \to \mathcal{C}$;
+    \item Natural isomophism ${\bf curry}_{A,B,C} : Hom (A \otimes B, C) \cong (B, A \Rightarrow C)$;
+    \item Natural isomophism ${\bf curry}^{'}_{A,B,C} : Hom (A \otimes B, C) \cong (A, C \Leftarrow B)$;
+    \item For each $A, B \in Ob_{\mathcal{C}}$, there are exist arrows $ev_{A,B} : A \otimes (A \Rightarrow B) \rightarrow B$ and $ev_{A,B}^{'} : (B \Leftarrow A) \otimes A \rightarrow B$,
+    such that for all $f : A \otimes C \rightarrow B$:
+      \begin{enumerate}
+        \item $ev_{A,B} \circ (id_A \otimes {\bf curry}(f)) = f$;
+        \item $ev_{A,B}^{'} \circ ({\bf curry}^{'}(f) \otimes id_A) = f$
+      \end{enumerate}
+  \end{enumerate}
+\end{defin}
+
+\begin{defin} Linear biexponential comonad
+
+  Let $\mathcal{C}$ is a monoidal category and $\mathcal{F}$ is monoidal endofunctor.
+A monoidal comonad $\langle \mathcal{F}, \epsilon, \delta, \phi \rangle$ is called a linear biexponential comonad, if
+$\mathcal{C}$ is a biclosed monoidal category and there exist additional natural transformations:
+\begin{enumerate}
+  \item $\pi_1 : \mathcal{F}A \otimes B \to B \otimes \mathcal{F}A$;
+  \item $\pi_2 : B \otimes \mathcal{F}A \to \mathcal{F}A \otimes B$;
+  \item $\zeta : \mathcal{F}A \to \mathcal{F}A \otimes \mathcal{F}A$.
+\end{enumerate}
+
+Such that:
+\begin{enumerate}
+  \item for each object $A$, tuple $\langle \mathcal{F}A, \zeta_{A} \rangle$ is a commutative cosemigroup:
+
+\xymatrix{
+\mathcal{F}A \ar[d]_{\zeta_{A}} \ar[rrr]^{d_{A}} &&& \mathcal{F}A \otimes \mathcal{F}A \ar[d]^{id_{\mathcal{F}A} \otimes \zeta_{A}} \\
+\mathcal{F}A \otimes \mathcal{F}A \ar[rrr]_{\alpha_{\mathcal{F}A, \mathcal{F}A, \mathcal{F}A} \circ (\zeta_{A} \otimes id_{\mathcal{F}A})} &&& \mathcal{F}A \otimes (\mathcal{F}A \otimes \mathcal{F}A)
+}
+  \item for each object $A$, the following diagrams commute:
+
+\begin{minipage}{0.5\textwidth}
+\xymatrix{
+\mathcal{F}A \ar[r]^{\delta_A} \ar[d]_{\zeta_A} & \mathcal{F}^2 A \ar[dr]^{\mathcal{F}\zeta_A}\\
+\mathcal{F}A \otimes \mathcal{F}A \ar[r]_{\zeta_A \otimes \zeta_A} & \mathcal{F}^2 A \otimes \mathcal{F}^2 A \ar[r]_{\phi_{\mathcal{F}A, \mathcal{F}B}}& \mathcal{F}(\mathcal{F}A \otimes \mathcal{F}A)
+}
+\end{minipage}%
+\hfill
+\begin{minipage}{0.5\textwidth}
+\begin{tabular}{p{\textwidth}}
+\xymatrix{
+\mathcal{F}A \ar[r]^{\delta_A} \ar[d]_{\zeta_A} & \mathcal{F}^2 A \ar[d]^{d_{\mathcal{F}A}} \\
+\mathcal{F}A \otimes \mathcal{F}A \ar[r]_{\delta_A \otimes \delta_A} & \mathcal{F}^2 A \otimes \mathcal{F}^2 A
+}
+\end{tabular}
+\end{minipage}
+\end{enumerate}
+
+\end{defin}
+
+\begin{defin} Interpretation
+  \begin{enumerate}
+  \item Types
+        \begin{enumerate}
+            \item $[\![p_i]\!] = \hat{A}$;
+            \item $[\![A \backslash B]\!] = [\![A]\!] \Rightarrow [\![B]\!]$;
+            \item $[\![B / A]\!] = [\![B]\!] \Leftarrow [\![A]\!]$;
+            \item $[\![! A]\!] = \mathcal{F}[\![A]\!]$
+        \end{enumerate}
+    \item Typing rules
+        \begin{enumerate}
+            \item $[\![x : A \vdash x : A]\!] = id_{[\![A]\!]} : [\![A]\!] \to [\![A]\!]$;
+            \item $ $
+            \begin{prooftree}
+            \AxiomC{$[\![x : A, \Pi \vdash M : B]\!] = [\![M]\!] : [\![A]\!] \otimes [\![\Pi]\!] \to [\![B]\!]$}
+            \UnaryInfC{$[\![\Pi \vdash \lambda x. M : A \backslash B]\!] = {\bf curry}_{[\![A]\!], [\![\Pi]\!], [\![B]\!]} : [\![\Pi]\!] \to [\![A]\!] \Rightarrow [\![B]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : A]\!] = [\![M]\!] : [\![\Gamma]\!] \to [\![A]\!]$}
+              \AxiomC{$[\![\Pi \vdash N : A \backslash B]\!] = [\![N]\!] : [\![\Pi]\!] \to [\![A]\!] \Rightarrow [\![B]\!]$}
+              \BinaryInfC{$[\![\Gamma, \Pi \vdash N M : B]\!] = ev_{[\![A]\!], [\![B]\!]} \circ [\![M]\!] \otimes [\![N]\!] : [\![\Gamma]\!] \otimes [\![\Pi]\!] \to [\![B]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{prooftree}
+            \AxiomC{$[\![\Pi, x : A \vdash M : B]\!] = [\![M]\!] : [\![\Pi]\!] \otimes [\![A]\!] \to [\![B]\!]$ }
+            \UnaryInfC{$[\![\Pi \vdash \kappa x. M : B / A]\!] = {\bf curry}^{'}_{[\![\Pi]\!], [\![A]\!], [\![B]\!]} : [\![\Pi]\!] \to [\![B]\!] \Leftarrow [\![A]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : B / A]\!] = [\![M]\!] : [\![\Gamma]\!] \to [\![B]\!] \Leftarrow [\![A]\!]$}
+              \AxiomC{$[\![\Pi \vdash N : A]\!] = [\![N]\!] : [\![\Pi]\!] \to [\![A]\!]$}
+              \BinaryInfC{$[\![\Gamma, \Pi \vdash N \& M : B]\!] = ev^{'}_{[\![A]\!], [\![B]\!]} \circ [\![M]\!] \otimes [\![N]\!] : [\![\Gamma]\!] \otimes [\![\Pi]\!] \to [\![B]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : A]\!] = [\![M]\!] : [\![\Gamma]\!] \to [\![A]\!]$}
+              \AxiomC{$[\![\Delta \vdash N : B]\!] = [\![N]\!] : [\![\Pi]\!] \to [\![B]\!]$}
+              \BinaryInfC{$[\![\Gamma, \Delta \vdash M \bullet N : A \bullet B]\!] = [\![M]\!] \otimes [\![N]\!] : [\![\Gamma]\!] \otimes [\![\Pi]\!] \to [\![A]\!] \otimes [\![B]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{scriptsize}
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : A \bullet B]\!] = [\![M]\!] : [\![\Gamma]\!] \to [\![A]\!] \otimes [\![B]\!]$}
+              \AxiomC{$[\![\Delta, x : A, y : B, \Pi \vdash N : C]\!] = [\![N]\!] : [\![\Delta]\!] \otimes [\![A]\!] \otimes [\![B]\!] \otimes [\![\Pi]\!] \to [\![C]\!]$}
+              \BinaryInfC{$[\![\Delta, \Gamma, \Pi \vdash {\bf let \:} M = x \bullet y {\: \bf in \:} N : C]\!] = (id_{[\![\Delta]\!]} \otimes [\![M]\!] \otimes id_{[\![\Pi]\!]}) \circ (\alpha_{[\![\Delta]\!], [\![A]\!], [\![B]\!]} \otimes id_{[\![\Pi]\!]}) \circ [\![N]\!] : [\![\Delta]\!] \otimes [\![\Gamma]\!] \otimes [\![\Pi]\!] \to [\![C]\!]$}
+            \end{prooftree}
+            \end{scriptsize}
+            \item $ $
+            \begin{scriptsize}
+            \begin{prooftree}
+              \AxiomC{$[\![x_1 : \: !A_1, \dots, x_n : \: !A_n \vdash M : A]\!] = [\![M]\!] : \mathcal{F}[\![A_1]\!] \otimes \dots \otimes \mathcal{F}[\![A_n]\!] \to [\![A]\!]$}
+              \UnaryInfC{$[\![x_1 : \: !A_1, \dots, x_n : \: !A_n \vdash !M : \: !A]\!] = \mathcal{F}([\![M]\!]) \circ \phi_{[\![A_1]\!],\dots,[\![A_n]\!]} \circ (\delta_{[\![A_1]\!]} \otimes \dots \otimes \delta_{[\![A_n]\!]}) :  \mathcal{F}[\![A_1]\!] \otimes \dots \otimes \mathcal{F}[\![A_n]\!] \to \mathcal{F}[\![A]\!]$}
+            \end{prooftree}
+            \end{scriptsize}
+            \item $ $
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : \: !A]\!] = [\![M]\!] : [\![\Gamma]\!] \to \mathcal{F}[\![A]\!]$}
+              \AxiomC{$[\![\Pi, x : A, \Delta \vdash N : B]\!] = [\![N]\!] : [\![\Pi]\!] \otimes [\![A]\!] \otimes [\![\Delta]\!] \to [\![B]\!]$}
+              \BinaryInfC{$[\![\Pi, \Gamma, \Delta \vdash {\bf let \:} !x = M {\: \bf in \:} N : B]\!] = [\![N]\!] \circ (id_{[\![\Pi]\!]} \otimes (\epsilon_{[\!A\!]} \circ [\![M]\!]) \otimes id_{[\![\Delta]\!]}): [\![\Pi]\!] \otimes [\![\Gamma]\!] \otimes [\![\Delta]\!] \to [\![B]\!]$}
+            \end{prooftree}
+            \item $ $
+            \begin{tiny}
+            \begin{prooftree}
+              \AxiomC{$[\![\Gamma \vdash M : \: !A]\!] = [\![M]\!] : [\![\Gamma]\!] \to \mathcal{F}[\![A]\!]$}
+              \AxiomC{$[\![\Delta \vdash N : B]\!] = [\![N]\!] : [\![\Delta]\!] \to [\![B]\!]$}
+              \AxiomC{$[\![\Pi, x : \: !A, y : B, \Theta \vdash P : C]\!] = [\![\Pi]\!] \otimes \mathcal{F}[\![A]\!] \otimes [\![B]\!] \otimes [\![\Theta]\!] \to [\![C]\!]$}
+              \TrinaryInfC{$[\![\Pi, \Delta, \Gamma, \Theta \vdash ([x]M \: \smiley{} \: [y]N) {\: \bf in \:} P : C]\!] = [\![\Pi]\!] \otimes  [\![\Delta]\!] \otimes [\![\Gamma]\!] \otimes [\![\Theta]\!] \to [\![C]\!]$}
+            \end{prooftree}
+          \end{tiny}
+          \end{enumerate}
+  \end{enumerate}
+\end{defin}
+
+\begin{theorem} Soundness
+
+  If $\Gamma \vdash M : A$ and $M \twoheadrightarrow N$, then $[\![\Gamma \vdash M : A]\!] = [\![\Gamma \vdash N : A]\!]$
+\end{theorem}
+
+\begin{proof}
+\end{proof}
+
+\begin{theorem} Completeness
+\end{theorem}
+
+\begin{proof}
+  Term model
+\end{proof}
+
+\end{document}

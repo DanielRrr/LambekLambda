@@ -48,7 +48,7 @@
 \end{equation}
 \end{defin}
 
-\begin{defin} ND-style Lambek $\lambda$-calculus based on $L^{*}(\bullet, /, \backslash)$:
+\begin{defin} ND-style Lambek $\lambda$-calculus based on $L^{*}(\bullet, /, \backslash, !)$:
   \begin{center}
   \begin{prooftree}
   \AxiomC{$ $}
@@ -79,6 +79,7 @@
 
     \begin{prooftree}
       \AxiomC{$!\Gamma \vdash M : A$}
+      \RightLabel{$\rightarrow !$}
       \UnaryInfC{$!\Gamma \vdash ! M : \: !A$}
     \end{prooftree}
 \end{minipage}%
@@ -88,24 +89,28 @@
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : A$}
     \AxiomC{$\Pi \vdash N : A \backslash B$}
+    \RightLabel{$\backslash_e$}
     \BinaryInfC{$\Gamma, \Pi \vdash N \$ M : B$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : B / A$}
     \AxiomC{$\Pi \vdash N : A$}
+    \RightLabel{$/_e$}
     \BinaryInfC{$\Gamma, \Pi \vdash N \& M : B$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash p : A \bullet B$}
     \AxiomC{$\Delta, x : A, y : B, \Pi \vdash N : C$}
+    \RightLabel{$\bullet_e$}
     \BinaryInfC{$\Delta, \Gamma, \Pi \vdash {\bf let \:} p = x \bullet y {\: \bf in \:} N : C$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : \: !A$}
     \AxiomC{$\Pi, x : A, \Delta \vdash N : B$}
+    \RightLabel{$!_e$}
     \BinaryInfC{$\Pi, \Gamma, \Delta \vdash {\bf let \:} !x = M {\: \bf in \:} N : A$}
   \end{prooftree}
 \end{tabular}
@@ -116,14 +121,16 @@
     \AxiomC{$\Gamma \vdash M : \: !A$}
     \AxiomC{$\Delta \vdash N : B$}
     \AxiomC{$\Pi, x : \: !A, y : B, \Theta \vdash P : C$}
-    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash ([x]M \: \smiley{} \: [y]N) {\: \bf in \:} P : C$}
+    \RightLabel{${\bf perm}_1$}
+    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash {\bf perm}_1 x,y {\: \bf with \:} M,N {\: \bf in \:} P : C$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Gamma \vdash M : A$}
     \AxiomC{$\Delta \vdash N : \: !B$}
-    \AxiomC{$\Pi, x : A, y : \:!B, \Theta \vdash M : C$}
-    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash ([y]N \: \blacksmiley{} \: [x]M) {\: \bf in \:} M : C$}
+    \AxiomC{$\Pi, x : A, y : \:!B, \Theta \vdash P : C$}
+    \RightLabel{${\bf perm}_2$}
+    \TrinaryInfC{$\Pi, \Delta, \Gamma, \Theta \vdash {\bf perm}_2 x,y {\: \bf with \:} M,N {\: \bf in \:} : C$}
   \end{prooftree}
 
 \begin{prooftree}
@@ -197,13 +204,13 @@ Examples:
     \begin{prooftree}
     \AxiomC{$x : A, \Pi \Rightarrow M : B$}
     \RightLabel{$\rightarrow \backslash$}
-    \UnaryInfC{$\Pi \Rightarrow \kappa x. M : A \backslash B$}
+    \UnaryInfC{$\Pi \Rightarrow \lambda x. M : A \backslash B$}
     \end{prooftree}
 
     \begin{prooftree}
     \AxiomC{ $\Pi, x : A \Rightarrow M : A$ }
     \RightLabel{$\rightarrow /$}
-    \UnaryInfC{$\Pi \Rightarrow \lambda x. M : B / A$}
+    \UnaryInfC{$\Pi \Rightarrow \kappa x. M : B / A$}
     \end{prooftree}
 
     \begin{prooftree}
@@ -226,14 +233,14 @@ Examples:
   \AxiomC{$\Pi \Rightarrow M : A$}
   \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
   \RightLabel{$\backslash \rightarrow$}
-  \BinaryInfC{$\Gamma, \Pi, f : A \backslash B, \Delta \Rightarrow N [x := f \& M] : C$}
+  \BinaryInfC{$\Gamma, \Pi, f : A \backslash B, \Delta \Rightarrow N [x := f \$ M] : C$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Pi \Rightarrow M : A$}
     \AxiomC{$\Gamma, x : B, \Delta \Rightarrow N : C$}
     \RightLabel{$/ \rightarrow$}
-    \BinaryInfC{$\Gamma, f : B / A, \Pi, \Delta \Rightarrow N [x := M \$ f] : C$}
+    \BinaryInfC{$\Gamma, f : B / A, \Pi, \Delta \Rightarrow N [x := M \& f] : C$}
   \end{prooftree}
 
   \begin{prooftree}
@@ -254,13 +261,13 @@ Examples:
   \begin{prooftree}
     \AxiomC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \Rightarrow M : B$}
     \RightLabel{${\bf perm}_1$}
-    \UnaryInfC{$\Gamma, x_1 : A_1, \dots, x_n : A_n, x : \: !A, \Delta \Rightarrow [x]x \smiley [x_n]x_n {\: \bf in \:} \dots {\: \bf in \:} [x]x \smiley [x_1]x_1 {\: \bf in \:} M : C$}
+    \UnaryInfC{$\Gamma, x_1^{'} : A_1, \dots, x_n^{'} : A_n, y : \: !A, \Delta \Rightarrow {\bf perm}_1 x^{'\dots'}, x_n {\: \bf with \:} y, x_n^{'} {\: \bf in \:} \dots {\: \bf in \:} ({\bf perm}_1 x, x_1 {\: \bf with \:} x^{'}, x_1^{'} {\: \bf in \:} M) : C$}
   \end{prooftree}
 
   \begin{prooftree}
     \AxiomC{$\Gamma, x_1 : A_1, \dots, x_n : A_n, x : \: !A, \Delta \Rightarrow M : B$}
     \RightLabel{${\bf perm}_2$}
-    \UnaryInfC{$\Gamma, x : \: !A, x_1 : A_1, \dots, x_n : A_n, \Delta \Rightarrow [x_n]x_n \blacksmiley [x]x {\: \bf in \:} \dots {\: \bf in \:} [x_1]x_1 \blacksmiley [x]x {\: \bf in \:} M : C$}
+    \UnaryInfC{$\Gamma, y : \: !A, x_1^{'} : A_1, \dots, x_n^{'} : A_n, \Delta \Rightarrow {\bf perm}_2 y^{'\dots'}, x_1 {\: \bf with \:} y, x_1^{'} {\: \bf in \:} \dots {\: \bf in \:} ({\bf perm}_2 x, x_n {\: \bf with \:} y^{'}, x_n^{'} {\: \bf in \:} M) : C$}
   \end{prooftree}
 
   \begin{prooftree}
@@ -291,8 +298,6 @@ Examples:
     \item $\lambda x. M x \rightarrow_{\eta} M$;
     \item $\kappa x. x \& M \rightarrow_{\eta} M$;
     \item ${\bf let \:} !x = !M {\: \bf in \:} N \rightarrow_{\eta} N [x := M]$;
-    \item $[x]M \smiley [y]N {\: \bf in \:} ([y]N \blacksmiley [x]M {\: \bf in \:} P) \rightarrow_{\eta} P$;
-    \item $[y]N \blacksmiley [x]M {\: \bf in \:} ([x]M \smiley [y]N {\: \bf in \:} P) \rightarrow_{\eta} P$.
   \end{enumerate}
 \end{defin}
 
